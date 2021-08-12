@@ -139,3 +139,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 파이썬 코드내에서 튜플을 표현해야 하신다면, 리스트를 쓰세요 !!!
 INTERNAL_IPS = ['127.0.0.1']
+
+# django_heroku 라이브러리는 heroku에서만 사용할 것입니다.
+# 그러니 그 라이브러리가 없더라도 무시토록 합니다.
+try:
+    import django_heroku
+    django_heroku.settings(locals())
+except ImportError:
+    pass

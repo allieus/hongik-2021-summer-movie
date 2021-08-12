@@ -2,3 +2,6 @@ django==3.2.6
 pillow==8.2.0
 django-debug-toolbar==3.2.1
 django-bootstrap-v5==1.0.5
+
+# 아래 팩키지는 linux에서만 설치되는 것.
+django-heroku
