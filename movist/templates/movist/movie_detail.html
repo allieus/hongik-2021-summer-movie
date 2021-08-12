@@ -1,0 +1,95 @@
+{% extends "movist/layout.html" %}
+
+{% block content %}
+<h1>{{ movie.name }}</h1>
+
+<ul>
+    <li>
+        주연배우:
+        <a href="/movist/actors/{{ movie.actor.pk }}/">
+            {{ movie.actor.name }}
+        </a>
+    </li>
+</ul>
+
+<img src="{{ movie.poster.url }}" style="max-width: 100%;" />
+
+<hr />
+
+{{ movie.desc|linebreaks }}
+
+<h3>Videos</h3>
+
+<ul>
+    {% for video in movie.video_set.all %}
+    <li>
+        <a href="{{ video.youtube_url }}">
+            {{ video.title }}
+        </a>
+
+        {% include "movist/_youtube_embed.html" with youtube_id=video.youtube_id %}
+
+        {% comment %} https://www.youtube.com/watch?v=xyfozmk1SxQ
+        https://www.youtube.com/embed/xyfozmk1SxQ
+
+        <iframe id="ytplayer" type="text/html" width="640" height="360"
+            src="https://www.youtube.com/embed/xyfozmk1SxQ?autoplay=1&origin=http://example.com"
+            frameborder="0"></iframe> {% endcomment %}
+
+    </li>
+    {% endfor %}
+</ul>
+
+<h3>Reviews</h3>
+
+<a href="{% url "review_new" movie.pk %}">
+    리뷰 쓰기
+</a>
+
+{# FIXME: 제거대상 #}
+<a href="/movist/movies/{{ movie.pk }}/reviews/new/">
+    리뷰 쓰기
+</a>
+
+<div id="review-list"></div>
+
+<script>
+    function init() {
+        console.log("페이지 초기화 완료");
+
+        // js로 리뷰 목록을 가져와서
+        // 웹페이지에 뿌려주겠다.
+
+        // var a = 1; // var 라고 쓰는 것은 옛 시대의 유물.
+        // 이제는 const와 let을 씁니다.
+
+        const review_list_url = '{% url "review_list" movie.pk %}';
+        // const review_list_url = "/movist/movies/{{ movie.pk }}/reviews/";
+
+        // 지정 주소로 GET 요청을 해서 응답을 받겠다.
+        jQuery.get(review_list_url)
+            .done((response) => {
+                const review_list = response;
+                let html = '';
+                for (const review of review_list) {
+                    html += `
+                        <li>
+                            ${review.message}
+                            by ${review.author.username}
+                            <a href="${review.edit_url}">Edit</a>
+                            <a href="${review.delete_url}">Delete</a>
+                        </li>
+                    `;
+                }
+                document.getElementById("review-list").innerHTML = '<ul>' + html + '</ul>';
+            })
+            .fail(() => {
+                console.error("failed to load");
+            })
+            .always(() => {}); // 아주 옛스런 방법, or fetch, axios
+    }
+    jQuery(init);
+    // $(init);
+</script>
+
+{% endblock %}
